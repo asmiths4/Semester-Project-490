@@ -1,7 +1,11 @@
 /* drawingboard.js v0.4.6 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2015 Emmanuel Pelletier
 * Licensed MIT */
+<<<<<<< HEAD
 var superArray = [];// Stores all the point sets from the doodle
+=======
+var superArray = []; // Stores all the point sets from the doodle
+>>>>>>> 246d33c3cd2e008cd121dc6d111f0fb7f4544be3
 var undoArray = [];//Stores all undo arrays
 var clearArray = [];//Stores superArray if board is reset
 (function() {
