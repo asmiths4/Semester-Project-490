@@ -1,6 +1,9 @@
 /* drawingboard.js v0.4.6 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2015 Emmanuel Pelletier
 * Licensed MIT */
+var superArray = [];// Stores all the point sets from the doodle
+var undoArray = [];//Stores all undo arrays
+var clearArray = [];//Stores superArray if board is reset
 (function() {
 	
 'use strict';
@@ -15,9 +18,12 @@
  * }
  * 
  */
+
+
 var SimpleUndo = function(options) {
 	
 	var settings = options ? options : {};
+	//superArray.pop();
 	var defaultOptions = {
 		provider: function() {
 			throw new Error("No provider!");
@@ -827,6 +833,10 @@ DrawingBoard.Board.prototype = {
 		this.isMouseHovering = false;
 		this.coords = {};
 		this.coords.old = this.coords.current = this.coords.oldMid = { x: 0, y: 0 };
+		var allPoints = [];
+		function trackPoints(e) {
+			allPoints.push({ x: e.pageX, y: e.pageY });
+		}
 
 		this.dom.$canvas.on('mousedown touchstart', $.proxy(function(e) {
 			this._onInputStart(e, this._getInputCoords(e) );
@@ -837,11 +847,15 @@ DrawingBoard.Board.prototype = {
 		}, this));
 
 		this.dom.$canvas.on('mousemove', $.proxy(function(e) {
-
+			trackPoints(e);
 		}, this));
 
 		this.dom.$canvas.on('mouseup touchend', $.proxy(function(e) {
 			this._onInputStop(e, this._getInputCoords(e) );
+			superArray.push(allPoints);
+			allPoints = [];
+			console.log(superArray);
+
 		}, this));
 
 		this.dom.$canvas.on('mouseover', $.proxy(function(e) {
@@ -858,7 +872,7 @@ DrawingBoard.Board.prototype = {
 		}, this));
 
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(this.draw, this) );
-	},
+	}, 
 
 	draw: function() {
 		//if the pencil size is big (>10), the small crosshair makes a friend: a circle of the size of the pencil
@@ -1177,6 +1191,29 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 		reset: true
 	},
 
+/* 	function convertArrayFormat()
+{
+	var i;
+	var finalArr = [];
+	for(i = 0; i < superArray.length; i++)
+	{
+		var lineX = [];
+		var lineY = [];
+		var j;
+		for(j = 0; j < i.length; j++)
+		{
+			lineX.push(j.x);
+			lineY.push(j.y);
+		}
+		var tempArr = [];
+		tempArr.push(lineX);
+		tempArr.push(lineY);
+		finalArr.push(tempArr);
+	}
+	console.log(finalArr);
+	return finalArr;
+} */
+
 	initialize: function() {
 		var el = '';
 		if (this.opts.back) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
@@ -1188,6 +1225,15 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 			var $back = this.$el.find('.drawing-board-control-navigation-back');
 			this.board.ev.bind('historyNavigation', $.proxy(this.updateBack, this, $back));
 			this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
+				if(superArray.length == 0)
+				{
+					superArray = clearArray.slice();
+					console.log(superArray);
+				}
+				else{
+					undoArray.push(superArray.pop());
+					console.log(superArray);
+				}
 				this.board.goBackInHistory();
 				e.preventDefault();
 			}, this));
@@ -1199,6 +1245,8 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 			var $forward = this.$el.find('.drawing-board-control-navigation-forward');
 			this.board.ev.bind('historyNavigation', $.proxy(this.updateForward, this, $forward));
 			this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
+				superArray.push(undoArray.pop());
+				console.log(superArray);
 				this.board.goForthInHistory();
 				e.preventDefault();
 			}, this));
@@ -1209,6 +1257,12 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 		if (this.opts.reset) {
 			this.$el.on('click', '.drawing-board-control-navigation-reset', $.proxy(function(e) {
 				this.board.reset({ background: true });
+				clearArray = superArray.slice();
+				//convertArrayFormat();
+				console.log(superArray[0][0].x);
+				superArray = [];
+				console.log(superArray.length);
+				//undoArray = [];
 				e.preventDefault();
 			}, this));
 		}
@@ -1216,6 +1270,8 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 
 	updateBack: function($back) {
 		if (this.board.history.canUndo()) {
+			//superArray.pop();
+			//console.log(superArray);
 			$back.removeAttr('disabled');
 		} else {
 			$back.attr('disabled', 'disabled');
