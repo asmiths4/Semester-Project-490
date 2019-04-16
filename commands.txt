@@ -1,0 +1,14 @@
+python3 train_model.py \
+    --training_data=/home/kiran24/Documents/CS490/data/training.tfrecord-?????-of-????? \
+    --eval_data=/home/kiran24/Documents/CS490/data/eval.tfrecord-?????-of-????? \
+    --classes_file=/home/kiran24/Documents/CS490/data/training.tfrecord.classes \ --predict_for_data
+
+
+python create_dataset.py --ndjson_path /home/kiran24/Documents/CS490/Semester-Project-490/csv_data/csv_sub \
+      --output_path /home/kiran24/Documents/CS490/Semester-Project-490/tf_output_data
+
+ python3 train_model.py \ --classes_file=/home/kiran24/Documents/CS490/data/training.tfrecord.classes \
+ --training_data=/home/kiran24/Documents/CS490/data/training.tfrecord-?????-of-????? \ 
+     --eval_data=/home/kiran24/Documents/CS490/data/eval.tfrecord-?????-of-????? \
+ --predict_for_data="[[[73,66,46,23,12,11,22,48,58,67,70,65],[11,6,2,10,23,33,48,56,54,41,22,10]],[[66,85,71],[9,3,26]],[[24,1,2,8],[6,1,10,19]],[[64,88,134,176,180,184,184,174,111,63,47],[34,29,28,35,39,58,91,94,86,71,62]],[[64,61,62],[74,83,102]],[[83,84,87],[78,102,107]],[[157,159,164],[96,108,116]],[[175,182],[91,115]],[[182,186,198,209,223,234,251,255],[51,36,29,30,38,39,20,8]],[[157,136,128,133,139],[35,47,57,35,29]],[[104,94,84,84,89],[40,52,70,30,26]],[[111,105,105,109,121],[30,59,68,72,34]],[[159,153,153],[41,54,65]]]" --predict_temp_file=./predict_temp.tfrecord --cell_type=cudnn_lstm
+     
